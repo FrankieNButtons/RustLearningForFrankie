@@ -1,0 +1,50 @@
+[package]
+name = "my_rust_project"
+version = "0.1.0"
+edition = "2021"
+description = "A sample Rust project to demonstrate Cargo.toml configuration."
+authors = ["Your Name <your.email@example.com>"]
+license = "MIT"
+repository = "https://github.com/yourusername/my_rust_project"
+documentation = "https://docs.rs/my_rust_project"
+readme = "README.md"
+keywords = ["rust", "example", "cargo"]
+categories = ["command-line-utilities"]
+workspace = "my_workspace"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+reqwest = "0.11"
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+assert_cmd = "1.0"
+
+[build-dependencies]
+cc = "1.0"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+winapi = { version = "0.3", features = ["winuser"] }
+
+[features]
+default = ["serde"]
+special_feature = ["serde", "reqwest"]
+
+[badges]
+travis-ci = { repository = "yourusername/my_rust_project", branch = "main" }
+
+[[bin]]
+name = "my_rust_project"
+path = "src/main.rs"
+
+[[example]]
+name = "example1"
+path = "examples/example1.rs"
+
+[[test]]
+name = "integration_test"
+path = "tests/integration_test.rs"
+
+[[bench]]
+name = "benchmark1"
+path = "benches/benchmark1.rs"

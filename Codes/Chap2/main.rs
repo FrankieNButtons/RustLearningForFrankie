@@ -1,8 +1,11 @@
-fn main() {                             // There are totally {} warnings in it, if not, I should update my note.
+fn main() {                             // There are totally 2 warnings in it, if not, I should update my note.
+    println!("Code 4 Chap2.1");
     code2_1();                          // There should be 2 warnings in this, don't worry.
-    code2_2();                          // There should be
+    println!("########################");
+    println!("Code 4 Chap2.2");
+    code2_2();                          // There should be no warnings in this.
 }
-fn code2_1(){
+fn code2_1(){                           // About Variables
         let num: i32 = 100;             // [Warning]unused var without "_" will cause compiler's warning.
     let _mun: i64 = 54;                 // unused var with "_" won't cause compiler's warning.
     //num = 13;                         // defaultly immutable variable.
@@ -26,6 +29,31 @@ fn code2_1(){
     x = 45;
     println!("Changed `x` is {}", x);
 }
-fn code2_2(){
 
+
+
+static MY_STA: i32 = 42;
+static mut MY_MUT_STA:i8 = 42;
+fn code2_2(){
+    const _SECONDS_PER_HOUR: usize = 3_600;              // Integer can be defined like this.
+    const MONTH_PER_YEAR: usize = 12;
+    const MONTH_PER_DECADE: usize = 10 * MONTH_PER_YEAR; // Computed out when compiling
+
+    println!("A year has {} months.", MONTH_PER_YEAR);
+    println!("A decade has {} months.", MONTH_PER_DECADE);
+    {
+        const TST:u32 = 1_000;
+        println!("inner TST={}", TST);
+    }
+    // println!("outer TST={}", TST);                    // const only accessible in its defining realm.
+
+
+    println!("MY_STA={}", MY_STA);
+    unsafe {                                            // `Unsafe code` is not recommended in Rust.
+        MY_MUT_STA = 37;
+        println!("inner MY_MUT_STA={}", MY_MUT_STA);
+        println!("inner MY_STA={}", MY_STA);            // Immutable static variables can be used in `unsafe code`
+    }
+    // println!("outer MY_MUT_STA={}", MY_MUT_STA);     // mutable static variables cannot be used in `safe code`
+    println!("outer MY_STA={}", MY_STA);
 }

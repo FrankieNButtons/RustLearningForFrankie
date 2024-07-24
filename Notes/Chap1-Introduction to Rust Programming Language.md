@@ -6,8 +6,8 @@
 ### 1.1.1: rustup usage
  - `rustup update`: Update Rust language.
  - `rustup --version`: Check the version of Rust language.
- - `rustup self uninstall`: uninstall Rust anguage.
- - `rustup component add rustfmt`: Add component to Rust.
+ - `rustup self uninstall`: uninstall Rust language.
+ - `rustup component add {yourComponent}`: Add component to Rust.
 
 ### 1.1.2: rustc usage
  - `rustc --version`: Check the version of rust compiler.

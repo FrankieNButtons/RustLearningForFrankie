@@ -7,24 +7,24 @@
  - `rustup update`: Update Rust language.
  - `rustup --version`: Check the version of Rust language.
  - `rustup self uninstall`: uninstall Rust language.
- - `rustup component add {yourComponent}`: Add component to Rust.
+ - `rustup component add yourComponent`: Add component to Rust.
 
 ### 1.1.2: rustc usage
  - `rustc --version`: Check the version of rust compiler.
- - `rustc yourSourceCode.rs`: then you will get your executive filein your pwd/cwd.
+ - `rustc yourSourceCode.rs`: then you will get your executive file in your pwd/cwd.
  - `rustc --crate-type lib yourCrateCode.rs`: building a `cteate`(package of rust language)  
 
 ### 1.1.3: cargo usage
- - `cargo new yourProjectName`: Create a new directory and necessary conponents for a new rust project named after your command in your pwd/cwd.  
+ - `cargo new yourProjectName`: Create a new directory with necessories for a new rust project named `yourProjectName` in your pwd/cwd.  
  - `cargo check`: Check errors and warnings in a rust project's directory.
  - `cargo build`: Compiling the whole project with all the dependencies.
       - `--`: No certain attachment for default compiling, debugging oriented.
       - `--release`: **Optimized** compiling process for production Projects, releasing oriented.
  - `cargo run`: Defaultly building an executive file and run instantly.
- - `cargo test`: Defaultly building an executive file with debugging infobation. 
+ - `cargo test`: Defaultly building an executive file with debugging information.  
 
 
-## 1.2: Project's Structure
+## 1.2: A Rust Project's Structure
 ```markdown
 my_rust_project/
 ├── Cargo.toml

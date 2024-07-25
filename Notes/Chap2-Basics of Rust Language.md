@@ -15,7 +15,7 @@
     - `enum`/`struct`: Pascal Case normally(`MyEnum`, `myStruct`······).
     - unused `variable`: start with "_" to avoid warning.
 5. Dtype Conversion(Casting):
-    - `let newVar = oldVal as {newDtype}`, then we got a new variable `newzVar` that is of `newDtype` dtype.
+    - `let newVar = oldVal as {newDtype}`, then we got a new variable `newVar` that is of `newDtype` dtype.
 
 ### 2.1.2 Demo Code 
 ```rust
@@ -119,7 +119,6 @@ fn code2_2(){
         println!("inner MY_MUT_STA={}", MY_MUT_STA);
         println!("inner MY_STA={}", MY_STA);
     }
-    // println!("outer MY_MUT_STA={}", MY_MUT_STA);
     println!("outer MY_STA={}", MY_STA);
 }
 ```
@@ -133,9 +132,13 @@ fn code2_2(){
    }
    ```
 2. Unsafe code is not recommended in Rust. Mutable static variables require `unsafe` blocks to be modified.
-
+- - -
 **Points 2B Remembered**
 1. Constants can be defined and used within their defining scope.
 2. Constants  be computed at compile time.
 3. Immutable static variables can be used in `unsafe` code blocks.
 4. Mutable static variables can only be modified within `unsafe` code blocks. 
+
+## 2.3 Basic Dtypes
+### Intro to those dtypes
+

@@ -1,6 +1,5 @@
 # <center> Chapter2: Basics of RustLanguage
 
-
 ## 2.1: Variability and Immutability
 
 ### 2.1.1: About Variables
@@ -139,6 +138,133 @@ fn code2_2(){
 3. Immutable static variables can be used in `unsafe` code blocks.
 4. Mutable static variables can only be modified within `unsafe` code blocks. 
 
-## 2.3 Basic Dtypes
-### Intro to those dtypes
+## 2.3: Basic Dtypes (Similar to C/C++)
+### 2.3.1: Intro to those dtypes
+- define: `let (mut) yourVar: dtype = val`
+#### 2.3.1.1: Integer Types
+- Integer Types
+   1. `i8`
+   2. `i16`
+   3. `i32` (default)
+   4. `i64`
+   5. `i128`
+- Unsigned Integer Types
+   1. `u8`
+   2. `u16`
+   3. `u32`
+   4. `u64`
+   5. `u128`  
+- Platform-Specific Integer Types (depending on your platform)
+   1. `usize`
+   2. `isize`
+#### Float Types
+- `f32` (float)
+- `f64` (double, default)  
+**Note:** Use `f64` if you're not sure about your demands.
+#### Boolean Values (`bool`)
+- `true`
+- `false`
+#### Character Type(`char`)
+1. Unicode characters in Rust  
+2. declared with `'yourChar'` (just like C/C++)
 
+### 2.3.2: Demo Codes
+```rust
+fn code2_3(){
+    let a1 = 233;
+    let a2: i64 = 0xFFFF;
+    let a4: i16 = 0o666;
+    let a3: i8 = 0b1111;
+    println!("a1 = {a1}\na2 = {a2}\na3 = {a3}\na4 = {a4}");
+
+    println!("Max of u32 is {}", u32::MAX);
+    println!("Min of u32 is {}", u32::MIN);
+    println!("Max of i64 is {}", i64::MAX);
+    println!("Min of i64 is {}", i64::MIN);
+    println!("Max of usize is {}", usize::MAX);
+
+    println!("u32 ocps {} bytes", std::mem::size_of::<u32>());
+    println!("i8 ocps {} bytes", std::mem::size_of::<i8>());
+    println!("isize ocps {} bytes", std::mem::size_of::<isize>());
+
+
+    let f1: f32 = 3.1415926;
+    let f2: f64 = 6.71828;
+    // println!("Max of f32 is {}", f32::MAX);
+    // println!("Min of f64 is {}", f64::MIN);
+    println!("f1 = {:.2}\nf2 = {:.4}", f1, f2);
+
+
+    let True = true;
+    let mut False: bool = false;
+    if True{
+        println!("True = {}", True);
+    }
+    if !False{
+        println!("False = {}", False);
+    }
+
+    println!("True && False = {}\nTrue || False = {}",
+             True && False,
+             True || False);
+
+
+    let char_e: char = 'E';
+    let char_emoji: char = '❤';
+    println!("I got {char_e}velyn and I feel {char_emoji}.");      
+}
+```
+### 2.3.3: Notes on Code
+**Warnings 2B Concerned**
+1. Snake case naming is recommended for variables.  
+2. Using capitalized reserved words for variable names is not recommended.  
+3. For example:
+   ```rust
+   let True = true;
+   ```
+4. Unchanged variables need no `mut` declaration. For example:
+   ```rust
+   let mut False: bool = false;
+   // and no more set value for False
+   ```
+
+**Points 2B Remembered**
+1. Default integer type is `i32`. For example:
+   ```rust
+   let a1 = 233;
+   ```
+2. Different ways to define integer literals:
+   - Hexadecimal: 
+     ```rust
+     let a2: i64 = 0xFFFF;
+     ```
+   - Octal:
+     ```rust
+     let a4: i16 = 0o666;
+     ```
+   - Binary:
+     ```rust
+     let a3: i8 = 0b1111;
+     ```
+3. Checking the size of data types in bytes. For example:
+   ```rust
+   println!("u32 ocps {} bytes", std::mem::size_of::<u32>()); 
+   ```
+4. Formatting floating-point numbers in Rust requires no 'f' sign. For example:
+   ```rust
+   println!("f1 = {:.2}\nf2 = {:.4}", f1, f2); 
+   ```
+5. Boolean values and logical operations:
+   ```rust
+   let True = true;
+   let False = false;
+   println!("True && False = {}\nTrue || False = {}", True && False, True || False);
+   ```
+6. Unicode characters, including emojis, are available in Rust. For example:
+   ```rust
+   let char_e: char = 'E';
+   let char_emoji: char = '❤';
+   println!("I got {char_e}velyn and I feel {char_emoji}.");
+   ```
+
+## 2.4: 

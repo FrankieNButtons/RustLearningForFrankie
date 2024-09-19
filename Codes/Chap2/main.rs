@@ -8,7 +8,7 @@ fn main() {                             // There are totally 5 warnings in it, i
     println!("Lesson 2.3");
     code2_3();                          // There should be 3 warnings in this, don't worry.
     println!("########################\n\n");
-    println!("Lesson 2.4");
+    println!("Lesson 2.4");             // There should be no warnings in this.
     code2_4();
 }
 fn code2_1(){                           // About Variables
@@ -64,7 +64,7 @@ fn code2_2(){
     println!("outer MY_STA={}", MY_STA);
 }
 fn code2_3(){
-    let a1 = 233;                                   // Defaultly int32
+    let a1 = 233;                                       // Defaultly int32
     let a2: i64 = 0xFFFF;                               // start with '0x' to define a hex
     let a4: i16 = 0o666;                                // start with '0o' to define an octal
     let a3: i8 = 0b1111;                                // start with '0b' to define a binary
@@ -88,7 +88,7 @@ fn code2_3(){
     println!("f1 = {:.2}\nf2 = {:.4}", f1, f2);                 // Float formatting in Rust need no sign of 'f'
 
 
-    let True = true;                                      // [warning] Snake case naming is recommanded
+    let True = true;                                            // [warning] Snake case naming is recommanded
                                                                 // [warning] Capitalized reserved word not recommanded for variable, if necessary,  use 'raw identifier'
     let mut False: bool = false;                                // [Warning] Unchanged variable need no 'mut' declaration
     if True{
@@ -110,7 +110,7 @@ fn code2_3(){
 
 fn code2_4(){
     // Tuple Usage Test
-    let a = (1, "hi", 6.7, 9);                 // Immutable tuple can be defined like this.
+    let a = (1, "hi", 6.7, 9);                                        // Immutable tuple can be defined like this.
     // println!("a = ({} {} {} {} {})", a.0, a.1, a.2, a.3, a.4);     // [Error]How to index a tuple(And index out of bounds will cause UnkwnownFieldError). 
     println!("a = ({} {} {} {})", a.0, a.1, a.2, a.3);
     println!("a = {:?}", a);                                          // Print the whole code form of a tuple with `:?`.
@@ -125,8 +125,8 @@ fn code2_4(){
     println!("b = {:?}", b);
 
     // Array Usage Test
-    let arr1 = [1, 2, 3, 4];                                // Immutable array can be defined like this with heterogeneous dtype.
-    let arr2 = [7; 5];                                      // Define an array with same value.
+    let arr1 = [1, 2, 3, 4];                                          // Immutable array can be defined like this with heterogeneous dtype.
+    let arr2 = [7; 5];                                                // Define an array with same value.
     let arr3: [f32; 3] = [1.00, 2.71, 3.14];                          // Define an array with heterogeneous dtype.
     
     // println!("arr1[2] = {}", arr1[5]);                             // How to index an array(And index out of bounds will cause IndexOutOfBoundError).
@@ -135,16 +135,16 @@ fn code2_4(){
     println!("arr2 = {:?}, arr2.len() = {}", arr2, arr2.len());
     println!("arr3 = {:?}, arr3.len() = {}", arr3, arr3.len());
     
-    for i in 0..arr1.len(){                                    // Iterate over an array with index.
+    for i in 0..arr1.len(){                                           // Iterate over an array with index.
         println!("arr1[{}] = {}", i, arr1[i]);
     }
     
-    for (i,item) in arr2.iter().enumerate(){             // Iterate over an array with enumerator.
+    for (i,item) in arr2.iter().enumerate(){                          // Iterate over an array with enumerator.
         println!("arr2[{}] = {} ", i, item);
     }
     
     print!("arr3 = [");
-    for i in arr3{                                               // Iterate over an array directly.
+    for i in arr3{                                                    // Iterate over an array directly.
         print!("{:.2} ", i);
     }
     println!("]");

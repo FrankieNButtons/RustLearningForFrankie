@@ -1,4 +1,4 @@
-# <center> Chapter2: Basics of RustLanguage
+# <center> Chapter2: Basics of RustLanguage </center>
 
 ## 2.1: Variability and Immutability
 
@@ -228,6 +228,8 @@ fn code2_3(){
    // and no more set value for False
    ```
 
+- - -
+
 **Points 2B Remembered**
 1. Default integer type is `i32`. For example:
    ```rust
@@ -267,4 +269,136 @@ fn code2_3(){
    println!("I got {char_e}velyn and I feel {char_emoji}.");
    ```
 
-## 2.4: 
+## 2.4: Tuple & Array
+### 2.4.1: Intro to those data types
+#### General Preview
+1. Both of them are Compound dypes, which is a combination of different dtypes of data;
+2. Both of them are fixed-length;
+3. Compared to Vectors & Maps: Those two are collection dtypes;
+#### Tuple
+1. Support different dtypes of data(Isomerous);
+2. Defined with `let tup = (dtype1, dtype2, ...)`;
+3. defaultly return `Empty Tuple()`;
+4. No `tup.len()` method
+5. fetch element with `tup.index`;
+6. Directly support iteration(`for item in tup`);  
+#### Array
+1. Support only one dtype of data(Heterogenous);
+2. Defined with `array = [a, b, c]` or `array = [value; length]`;
+3. fetch element with `array[index]`;
+4. `array.len()` to get the length of array;
+5. Directly support slicing(`array[start:end]`);
+6. Directly support iteration(`for item in array`);
+### 2.4.2: Demo Codes
+```rust
+fn code2_4(){
+    // Tuple Usage Test
+    let a = (1, "hi", 6.7, 9);                                        // Immutable tuple can be defined like this.
+    // println!("a = ({} {} {} {} {})", a.0, a.1, a.2, a.3, a.4);     // [Error]How to index a tuple(And index out of bounds will cause UnkwnownFieldError). 
+    println!("a = ({} {} {} {})", a.0, a.1, a.2, a.3);
+    println!("a = {:?}", a);                                          // Print the whole code form of a tuple with `:?`.
+    // println!("a.len() = {}", a.len());                             // tuple has no len() method.
+    
+    let mut b = (1, "hi", 6.7, 9);
+    // b.1 = 8;                                                       // [Error]Cross dtype change is not allowed ecen in tuple.
+    b.0 = 2;
+    b.1 = "hello";
+    b.2 = 3.1415926;
+    b.3 = 8;
+    println!("b = {:?}", b);
+
+    // Array Usage Test
+    let arr1 = [1, 2, 3, 4];                                          // Immutable array can be defined like this with heterogeneous dtype.
+    let arr2 = [7; 5];                                                // Define an array with same value.
+    let arr3: [f32; 3] = [1.00, 2.71, 3.14];                          // Define an array with heterogeneous dtype.
+    
+    // println!("arr1[2] = {}", arr1[5]);                             // How to index an array(And index out of bounds will cause IndexOutOfBoundError).
+    println!("arr1[2] = {}", arr1[2]);
+    println!("arr1 = {:?}, arr1.len() = {}", arr1, arr1.len());       // Fetch the length of an array with `.len()` method.
+    println!("arr2 = {:?}, arr2.len() = {}", arr2, arr2.len());
+    println!("arr3 = {:?}, arr3.len() = {}", arr3, arr3.len());
+    
+    for i in 0..arr1.len(){                                           // Iterate over an array with index.
+        println!("arr1[{}] = {}", i, arr1[i]);
+    }
+    
+    for (i,item) in arr2.iter().enumerate(){                          // Iterate over an array with enumerator.
+        println!("arr2[{}] = {} ", i, item);
+    }
+    
+    print!("arr3 = [");
+    for i in arr3{                                                    // Iterate over an array directly.
+        print!("{:.2} ", i);
+    }
+    println!("]");
+    
+}
+```
+
+### 2.4.3: Notes on Code
+**Warnings 2B Concerned**
+1. Indexing a tuple or array out of bounds will result in an error. For example:
+   ```rust
+   // println!("a = ({} {} {} {} {})", a.0, a.1, a.2, a.3, a.4); // [Error] Index out of bounds causes UnkwnownFieldError
+   // println!("arr1[2] = {}", arr1[5]);                        // [Error] Index out of bounds causes IndexOutOfBoundError
+   ```
+
+2. Cross dtype changes are not allowed even in tuples. For example:
+   ```rust
+   // b.1 = 8; // [Error] Cross dtype change is not allowed even in tuple.
+   ```
+
+- - -
+*
+**Points 2B Remembered**
+1. Immutable tuples and arrays can be defined and printed directly. For example:
+   ```rust
+   let a = (1, "hi", 6.7, 9);
+   println!("a = ({} {} {} {})", a.0, a.1, a.2, a.3);
+   println!("a = {:?}", a); // Use `:?` to print the whole tuple
+   ```
+
+2. You can mutate values in a tuple as long as they stay within the same dtype. For example:
+   ```rust
+   let mut b = (1, "hi", 6.7, 9);
+   b.0 = 2;
+   b.1 = "hello";
+   b.2 = 3.1415926;
+   b.3 = 8;
+   println!("b = {:?}", b);
+   ```
+
+3. Arrays in Rust can be defined with homogeneous dtypes and support several initialization methods:
+   - Regular array definition:
+     ```rust
+     let arr1 = [1, 2, 3, 4]; // Immutable array with defined values
+     ```
+   - Repeated value array:
+     ```rust
+     let arr2 = [7; 5]; // Define an array with same value repeated 5 times
+     ```
+
+4. Arrays support fetching their length with `.len()`. For example:
+   ```rust
+   println!("arr1.len() = {}", arr1.len());
+   ```
+
+5. Arrays can be iterated using index, `.iter()` method, or directly. For example:
+   - Using index:
+     ```rust
+     for i in 0..arr1.len(){
+         println!("arr1[{}] = {}", i, arr1[i]);
+     }
+     ```
+   - Using `.iter()` with `enumerate()`:
+     ```rust
+     for (i, item) in arr2.iter().enumerate(){
+         println!("arr2[{}] = {}", i, item);
+     }
+     ```
+   - Direct iteration:
+     ```rust
+     for i in arr3{
+         print!("{:.2} ", i);
+     }
+     ```

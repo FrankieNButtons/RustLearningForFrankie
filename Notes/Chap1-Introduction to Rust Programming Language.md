@@ -1,4 +1,4 @@
-# <center>Chapter1: Introduction to Rust Language 
+# <center>Chapter1: Introduction to Rust Language </center>
 ## 1.1: Basic Components:
  - Language Manager: `Rustup`
  - Compiler: `rustc`
@@ -12,7 +12,7 @@
 ### 1.1.2: rustc usage
  - `rustc --version`: Check the version of rust compiler.
  - `rustc yourSourceCode.rs`: then you will get your executive file in your pwd/cwd.
- - `rustc --crate-type lib yourCrateCode.rs`: building a `cteate`(package of rust language)  
+ - `rustc --crate-type lib yourCrateCode.rs`: building a `crate`(package of rust language)  
 
 ### 1.1.3: cargo usage
  - `cargo new yourProjectName`: Create a new directory with necessories for a new rust project named `yourProjectName` in your pwd/cwd.  

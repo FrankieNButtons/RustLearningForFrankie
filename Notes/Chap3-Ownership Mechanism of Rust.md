@@ -8,13 +8,13 @@ let tup = (15, "ok", 42, 666);
 println!("arr: {:?}", arr);
 println!("tup: {:?}", tup);
 
-let arr_ownership = arr;                                                        // ownership transfer
+let arr_ownership = arr;                                                                  // ownership transfer
 let tup_ownership = tup;
 println!("arr_ownership: {:?}", arr_ownership);                                           // the memory has been copied.(Not only apply the pointer to the variable)
 println!("tup_ownership: {:?}", tup_ownership);
 
 let a = 3;
-let b = a;                                                                           // Variable `a` is not covered by `b` 
+let b = a;                                                                                // Variable `a` is not covered by `b` 
 println!("a: {}, b: {}", a, b);                                                           // Thus `a` can still be printed
 
 // But for those variables that are more complex, Rust use `Move` Strategy
@@ -31,148 +31,748 @@ println!("str_2: {}", str_2);
 
 ## 3.1 Memory Management Mechanism of Rust
 ### 3.1.1 Errors in regards of memory mechanism in C/C++
-1. Memory Leak: The memory that is allocated but not freed(e.g. `int* str = new int` Solution: `delete str`)
-2. Dangling Pointer: The pointer that points to the memory that has been freed(e.g. `int* str = new int; delete str; int* str2 = str;` Solution: `delete str2`)
-3. Double Free: The memory that is freed twice(e.g. `int* str = new int; delete str; delete str;` Solution: `delete str`only once.)
-4. Array out of bounds: The array that is out of bounds(e.g. `int* str = new int[10]; str[10] = 1;` Solution: `str[9] = 1;`)
-5. Use after free: The memory that is freed but still used(e.g. `int* str = new int; delete str; str[0] = 1;` Solution: no `str` usage after `delete str`)
-6. Stack overflow: The stack that is overflowed(e.g. `int* str = new int[100000000];` Solution: `int* str = new int[100];`)
-7. Wild pointer: The pointer that is not initialized(e.g. `int* str; str[0] = 1;` Solution: `int* str = new int; str[0] = 1;`)
-8. Ambiguous usage of `new/delete` and `mealoc/free`(): The usage of `new/delete` and `mealoc/free`() is ambiguous(e.g. `int* str = new int; free(str);` Solution:`int* str = (int*)malloc(sizeof(int)); free)
+1. **Memory Leak**: Memory that is allocated but not freed (e.g., `int* str = new int;`).
+   - Solution: `delete str;`
+   
+2. **Dangling Pointer**: A pointer that points to memory that has been freed (e.g., `int* str = new int; delete str; int* str2 = str;`).
+   - Solution: Avoid using the pointer after memory is freed. Ensure `delete` is done only once.
+
+3. **Double Free**: Memory that is freed twice (e.g., `int* str = new int; delete str; delete str;`).
+   - Solution: Make sure to `delete` the memory only once.
+
+4. **Array out of bounds**: Trying to access an array outside of its bounds (e.g., `int* str = new int[10]; str[10] = 1;`).
+   - Solution: Ensure that array access is within bounds (e.g., `str[9] = 1;`).
+
+5. **Use after free**: Memory that is freed but still used (e.g., `int* str = new int; delete str; str[0] = 1;`).
+   - Solution: Avoid using a pointer after `delete` is called.
+
+6. **Stack overflow**: The stack overflows due to excessive memory allocation (e.g., `int* str = new int[100000000];`).
+   - Solution: Use smaller allocations (e.g., `int* str = new int[100];`).
+
+7. **Wild pointer**: A pointer that is not initialized (e.g., `int* str; str[0] = 1;`).
+   - Solution: Always initialize pointers (e.g., `int* str = new int; str[0] = 1;`).
+
+8. **Ambiguous usage of `new/delete` and `malloc/free`**: Mixing memory management methods, such as using `new/delete` with `malloc/free` (e.g., `int* str = new int; free(str);`).
+   - Solution: Stick to one method of memory management. If using `malloc`, use `free`, and if using `new`, use `delete`.
+
 ### 3.1.2 Memory Management Mechanism in Rust
- - Borrowing: `Variable` or `Invariable`
- - Lifetime: The memory that’s been used passed as `ownership` 
- - Reference Counting: Calculated while compiling, freed when the reference count is 0.
+1. **Borrowing**: Rust uses borrowing to allow multiple references to a value without taking ownership. There are two types of borrowing:
+   - **Immutable Borrowing**: `&T`, which allows shared access to a value without taking ownership.
+   - **Mutable Borrowing**: `&mut T`, which allows exclusive access to modify a value.
+   
+2. **Lifetime**: Rust enforces lifetimes to ensure that memory is properly freed when no longer in use. When a variable goes out of scope, its memory is freed.
+
+3. **Reference Counting**: Rust uses reference counting through `Rc` and `Arc` for memory management. The memory is freed when the reference count drops to zero. This happens at compile time.
+
 ### 3.1.3 Demo Codes
 ```rust
-// `Copy` on baic type
-let c1 = 1;
-let _c2 = c1;                                                                          // `Copy` on basic type
-println!("_c1={}", c1);
-// `Ownership borrowed`` on complex type
-let s1 = String::from("hello");
-let _s2 = s1;                                                                          // `Move` the ownership of `s1` to `s2`
-// println!("_s1={}", s1);                                                             // [Error]The ownership of value in `s1` has been moved to `s2`, which will cause BorrowOfMovedValueError
-println!("_s2={}", _s2);
-let s2 = _s2.clone();                                                                  //  `Clone` on complex type
-println!("s2={}", s2);
-println!("_s2={}", _s2);
+fn code3_1() {
+    // `Copy` on basic types
+    let c1 = 1;
+    let _c2 = c1; // `Copy` on basic types
+    println!("_c1={}", c1);
 
-fn get_length(s: String)-> usize{      
-    println!("Length of {}, is {}", s, s.len());
-    s.len()                                                                            // No `;` to return and claim the dtype on annotation
-}
+    // `Ownership borrowed` on complex types
+    let s1 = String::from("hello");
+    let _s2 = s1; // Ownership of `s1` moved to `_s2`
+    // println!("_s1={}", s1); // [Error] Ownership moved, cannot use `s1`
+    println!("_s2={}", _s2);
 
-let s3 = String::from("hello3");
-let ln = get_length(s3);
-// println!("s3 '{}'is not kept.", s3);                                                // The ownership of value in `s3` has been moved to function `get_length`, which will cause BorrowOfMovedValueError
-println!("length {} of s3 is returned.", ln);
+    let s2 = _s2.clone(); // `Clone` on complex types
+    println!("s2={}", s2);
+    println!("_s2={}", _s2);
 
+    fn get_length(s: String) -> usize {
+        println!("Length of {}, is {}", s, s.len());
+        s.len() // No `;` to return and claim the dtype on annotation
+    }
 
-// Solution 1
-fn print_string(s: String) -> String{                                                  // return the Struct as the input variable
-    println!("{}", s);
-    s.to_owned()
-}
-let s4 = String::from("hello4");
-let s4_copy = print_string(s4);
-println!("s4_copy={}", s4_copy);
+    let s3 = String::from("hello3");
+    let ln = get_length(s3);
+    // println!("s3 '{}' is not kept.", s3); // Ownership moved to function
+    println!("length {} of s3 is returned.", ln);
 
+    // Solution 1: Returning ownership
+    fn print_string(s: String) -> String {
+        println!("{}", s);
+        s.to_owned() // Return the ownership of the String
+    }
 
-// Solution 2
-fn print_string_static(s: String) -> &'static str{                                     // return the static pointer as the input, but will occupy the global memory all the time.[NOT RECOMMENDED]
-    println!("{}", s);
-    "hello5_returned"
-}
-let s5 = String::from("hello5");
-let s5_returned = print_string_static(s5);
-println!("s5_returned={}", s5_returned);
+    let s4 = String::from("hello4");
+    let s4_copy = print_string(s4);
+    println!("s4_copy={}", s4_copy);
 
+    // Solution 2: Static pointer (not recommended)
+    fn print_string_static(s: String) -> &'static str {
+        println!("{}", s);
+        "hello5_returned" // Static return value, not recommended
+    }
 
-// Solution 3
-fn print_string_static_2(s: String) -> String{                                         // Whatever the function is
-    println!("{}", s);
-    s
-}
+    let s5 = String::from("hello5");
+    let s5_returned = print_string_static(s5);
+    println!("s5_returned={}", s5_returned);
 
-let s6 = String::from("hello6");
-let s6_returned = print_string_static_2(s6.clone());                                   // Whatever the ownership of the variable is, it can be cloned and put in as other languages, while the original one preserved, though it hurt the performance sometimes.
-println!("s6_returned={}", s6_returned);
-println!("s6={}", s6);
+    // Solution 3: Cloning the value
+    fn print_string_static_2(s: String) -> String {
+        println!("{}", s);
+        s // Returning ownership back
+    }
 
-fn first_word(s:&str) -> &str{
-    let bytes = s.as_bytes();
-    for (i, &item) in bytes.iter().enumerate(){
-        if item == b' '{
-            return &s[0..i];
+    let s6 = String::from("hello6");
+    let s6_returned = print_string_static_2(s6.clone()); // Clone to preserve original
+    println!("s6_returned={}", s6_returned);
+    println!("s6={}", s6);
+
+    fn first_word(s: &str) -> &str {
+        let bytes = s.as_bytes();
+        for (i, &item) in bytes.iter().enumerate() {
+            if item == b' ' {
+                return &s[0..i];
+            }
         }
+        &s[..]
     }
-    &s[..]
+
+    let back = first_word("Hello World");
+    println!("back={}", back);
 }
-let back = first_word("Hello World");
-println!("back={}", back);
 ```
+
 ### 3.1.4 Notes on Codes
-**Points to Remember**  
-1. `Copy` strategy for simple dtypes(**Stack Allocated Memory**)
-    - int
-    - float
-    - char
-    - bool
-    - enum(According to whether there are complex dtype in it)
-    - struct(According to whether there are complex dtype in it)
-    - tuple(According to whether there are complex dtype in it)
-    - array(According to whether there are complex dtype in it)
-2. `Move` strategy for complex dtypes(**Heap Allocated Memory**)
-    - string
-    - vector
-    - hashmap
-    - 
-3. Ownership is transferred when the variable is passed to a function and will be destroied with the unction call.
-```rust
-let s3 = String::from("hello3");
-let ln = get_length(s3);
-println!("s3 '{}'is not kept.", s3);                                                   // This will cause BorrowOfMovedValueError
-```
-4. How to Properly pass the ownership of a variable to a function
-    - Using `.clone()` strategy(Easy and intuitive)
-    ```rust
-    fn example_function(s: Any) -> Any{
-        // anything
-    }
-    let s = Any;
-    let s_copy = example_function(s.clone());                                           // Using `.clone()` to copy the value(Memory occupacy doubled)
-    ```
-    - Using `borrow pointer` to share the value(**MOST RECOMMENDED & EFFICIENT**)
-    ```rust
-    fn example_function(s: &Any) -> Any{
-        /// anything
-        let s_real = s.to_owned();                                                     // Using `.to_owned()` to fetch the value
+**Warnings 2B Concerned**
+1. **Ownership Move**: When ownership of a value is moved (like `s1` to `s2`), the original variable is no longer accessible, which will lead to a **BorrowOfMovedValueError**.
+   - Ensure that you don't try to use a variable after its ownership has been moved.
 
-    }
+2. **Cloning**: When you need to keep a copy of a value, use `.clone()` to avoid ownership transfer. However, cloning can affect performance, especially for large data structures.
 
-    ```
-    - Using `&'static` lifetime(**NOT RECOMMENDED**)
-    ```rust
-    fn example_function(s: &'static Any) -> Any{                                       // `s` will never be destroyed and hurt the performance
-        /// anything
-    }
-    ```
+3. **Static Return Values**: Returning static values (`'static str`) is not recommended because it can lead to memory management issues as the string is stored in global memory.
+
+**Points 2B Remembered**
+1. **Borrowing**: Rust allows both immutable and mutable borrowing of values. With borrowing, you can have multiple references to a value, but only one mutable reference at a time.
+   
+2. **Ownership and Cloning**: Ownership of data is transferred when it is moved (e.g., `let s2 = s1;`). You can prevent this by cloning the data if you need to keep a copy (e.g., `let s2 = s1.clone();`).
+   
+3. **Function Ownership**: Functions can take ownership of parameters (e.g., `fn get_length(s: String)`), and Rust will automatically manage the cleanup when the function exits, preventing memory leaks.
+
+4. **Lifetimes**: Lifetimes in Rust ensure that references are valid for the correct duration, preventing dangling pointers and other memory issues.
+
+5. **Static References**: Use caution when returning references with `'static` lifetime as it can cause issues with memory management. Consider using ownership transfer or cloning instead.
+
+6. **Memory Safety**: Rust's ownership model ensures memory safety without the need for a garbage collector.
+
 ## 3.2 Ownership of `String` & `&str`
 ### 3.2.1 `String` and `&str` Explanation
-1. `String` is a **Heap Allocated Changable struct**, which is a **Dynamic Array**, which can be resized dynamically, whose essence is:
+1. `String` is a **Heap Allocated Changable struct**, which is a **Dynamic Array**, whose essence is:
 ```rust
 pub struct String {
     vec: Vec<u8>,
 }
 ```
-2. `&str` is a **Stack Allocated Unchangable Slice**, whose essence is a `borrow pointer`, pointng to the UTF-8 encoded `String` stored in memory, whose essence is a `pointer` and a `length`.
+2. `&str` is a **Stack Allocated Unchangable Slice**, whose essence is a `borrow pointer`, pointing to the UTF-8 encoded `String` stored in memory, whose essence is a `pointer` and a `length`.
 3. `String` has an ownership, while `&str` does not.
-4. Using o `String`: When you need to occupy memory for a new String(like a property of a `struct`)
+4. Using `String`: When you need to occupy memory for a new String (like a property of a `struct`)
     - You can't use `&str` unless you claim a lifetime to it.
     - There will be other memory risks when you create multiple structs that contain the same `&str`
-5. Using `&str`: When you need to pass the value of a **created** `String` and no need to pass the ownershp to something else(lke pass the value of a string to a function)
+5. Using `&str`: When you need to pass the value of a **created** `String` and no need to pass the ownership to something else (like passing the value of a string to a function)
     - use `&str`, `&str` and `&String` can both be passed.
     - use `&String` only `&String` can be passed.
-6. `&str` is a `Slice Borrow Pointer` and can pass the actual value of the String it point to(using `.to_owned()`), while `&String` is a `String Borrow Pointer` that can only pass the pointer of the String it point to.
+6. `&str` is a `Slice Borrow Pointer` and can pass the actual value of the String it points to (using `.to_owned()`), while `&String` is a `String Borrow Pointer` that can only pass the pointer of the String it points to.
 
+### 3.2.2 Demo Codes
+```rust
+fn code3_2(){
+    // `Copy` on basic type
+    let c1 = 1;
+    let _c2 = c1;                                     
+    println!("_c1={}", c1);
+
+    // `Ownership borrowed` on complex type
+    let s1 = String::from("hello");
+    let _s2 = s1;                               
+    println!("_s2={}", _s2);
+    let s2 = _s2.clone();                      
+    println!("s2={}", s2);
+    println!("_s2={}", _s2);
+
+    fn get_length(s: String)-> usize{      
+        println!("Length of {}, is {}", s, s.len());
+        s.len()
+    }
+
+    let s3 = String::from("hello3");
+    let ln = get_length(s3);
+    println!("length {} of s3 is returned.", ln);
+
+    // Solution 1
+    fn print_string(s: String) -> String{                                              
+        println!("{}", s);
+        s.to_owned()
+    }
+    let s4 = String::from("hello4");
+    let s4_copy = print_string(s4);
+    println!("s4_copy={}", s4_copy);
+
+    // Solution 2
+    fn print_string_static(s: String) -> &'static str{                                     
+        println!("{}", s);
+        "hello5_returned"
+    }
+    let s5 = String::from("hello5");
+    let s5_returned = print_string_static(s5);
+    println!("s5_returned={}", s5_returned);
+
+    // Solution 3
+    fn print_string_static_2(s: String) -> String{                                         
+        println!("{}", s);
+        s
+    }
+    let s6 = String::from("hello6");
+    let s6_returned = print_string_static_2(s6.clone());                           
+    println!("s6_returned={}", s6_returned);
+    println!("s6={}", s6);
+
+    fn first_word(s: &str) -> &str {
+        let bytes = s.as_bytes();
+        for (i, &item) in bytes.iter().enumerate() {
+            if item == b' ' {
+                return &s[0..i];
+            }
+        }
+        &s[..]
+    }
+    let back = first_word("Hello World");
+    println!("back={}", back);
+
+    // Convert between `&str` and `String`
+    let s1 = String::from("Vlue C++");
+    let s2 = "Rust".to_owned();
+    let s1_replaced = s1.replace("C++", "Rust");
+    println!("{s1},{s2},{s1_replaced}");
+
+    let rust = "\x52\x75\x73\x74";
+    println!("`rust` = {:?}", rust);
+
+    let color = "black".to_string();
+    let name = "Vlue".to_string();
+
+    struct Person {
+        name: String,
+        color: String,
+        age: u8,
+    }
+    let _people = Person {
+        name,
+        color,
+        age: 18,
+    };
+
+    struct Person2<'a> {
+        name: &'a str,
+        color: &'a str,
+        age: u8,
+    }
+    let _people2 = Person2 {
+        name: "John",
+        color: "black",
+        age: 19,
+    };
+}
+```
+
+### 3.2.3 Notes on Codes
+**Warnings 2B Concerned**
+1. Moving ownership from one variable to another makes the original variable inaccessible. For example:
+   ```rust
+   let s1 = String::from("hello");
+   let _s2 = s1; // Ownership of `s1` is moved to `_s2`.
+   // println!("{}", s1); // [Error] Borrow of moved value
+   ```
+2. Structs containing `&str` require a lifetime specifier to avoid compile-time errors. For example:
+   ```rust
+   struct Person2<'a> {
+       name: &'a str,
+       color: &'a str,
+       age: u8,
+   }
+   ```
+
+**Points 2B Remembered**
+1. `String` can be cloned using `.clone()`, and the cloned variable retains the original data. For example:
+   ```rust
+   let s2 = _s2.clone();
+   println!("s2={}", s2);
+   println!("_s2={}", _s2);
+   ```
+
+2. Ownership can be passed to functions and returned to maintain control of the value. For example:
+   ```rust
+   fn print_string(s: String) -> String {
+       println!("{}", s);
+       s.to_owned()
+   }
+   let s4_copy = print_string(s4);
+   println!("s4_copy={}", s4_copy);
+   ```
+
+3. Functions can return a static reference when global memory is required, but this is not recommended. For example:
+   ```rust
+   fn print_string_static(s: String) -> &'static str {
+       println!("{}", s);
+       "hello5_returned"
+   }
+   ```
+
+4. Slicing strings with `&str` is efficient and can return substrings using ranges. For example:
+   ```rust
+   fn first_word(s: &str) -> &str {
+       let bytes = s.as_bytes();
+       for (i, &item) in bytes.iter().enumerate() {
+           if item == b' ' {
+               return &s[0..i];
+           }
+       }
+       &s[..]
+   }
+   ```
+
+5. Structs can hold either `String` or `&str`, but `&str` requires careful handling with lifetime specifiers to avoid dangling references.
+
+## 3.3 Ownership and Usage of `enum` & `match`
+### 3.3.1 `enum` Explanation
+1. `enum` is a data type that can be used to represent a set of possible discrete values, each named as a `variant`.
+2. The calling of `enum` variants is done with `EnumName::VariantName`.
+3. Using `enum` makes programs more robust and readable.
+4. Example definition of `enum`:
+   ```rust
+   pub enum Shape{
+     Square(f64),
+     Rectangle(f64, f64),
+     Circle(f64)
+   }
+   ```
+5. Common `enum` types: `Option<T>` (function return) and `Result<T, E>`.
+   ```rust
+   pub enum Option<T>{
+       None,
+       Some(T)
+   }
+   pub enum Result<T, E>{
+       Ok(T),
+       Err(E)
+   }
+   ```
+
+### 3.3.2 `match` Explanation
+1. `match` is a powerful pattern matching tool to match the value of a variable.
+2. It is defined using the `match` keyword.
+3. All variants of an `enum` need to be covered, either explicitly or using a catch-all (`_`).
+4. You can use various match patterns: `_`, `|`, `..=`, `==`, `=>`.
+5. Example definition of `match`:
+   ```rust
+   match number{
+       0 => println!("zero"),
+       1 | 2 => println!("one or two"),
+       3 ..= 9 => println!("three to nine"),
+       n if n % 2 == 0 => println!("even"),
+       _ => println!("something else")
+   }
+   ```
+
+### 3.3.3 Little Tip on `impl`
+1. `impl` is used to define `associated functions` or methods for a data type.
+2. To define a function for a type, you need to declare it as a function on the type itself.
+   - For a type function, use `type::func`.
+3. To define a method for an instance of a type, use `&self`, and call it via `instance.func`.
+
+### 3.3.4 Demo Codes
+```rust
+fn code3_3(){
+    enum Color{                                                                            // Type unclaimed `enum`
+        Red,
+        Blue,
+        Green,
+        Black
+    }
+    fn print_color(my_color: Color) {
+        match my_color {
+        Color::Red => println!("Red"),                                                     // [Warning]Used variants will cause Warning
+        Color::Blue => println!("Blue"),
+        Color::Green => println!("Green"),
+        _ => println!("Others")                                                            // All variants need to be covered, comment this line out to cause error.
+        }
+    }
+    print_color(Color::Blue);
+    print_color(Color::Black);
+
+    enum BuildingLocation {
+        Number(i32),
+        // Name(&str),                                                                     // `&str` is not recommended, for it need to have a lifetime specifier.
+        Name(String),
+        Unknown                                                                            // `Unknown` can 
+    }
+
+    // `impl` is used to implement a function for a type( function oriented, not object oriented), and with `&self` param to declare the function for an instance
+    impl BuildingLocation {
+        fn get_location(&self) -> String {
+            match self {
+                BuildingLocation::Number(n) => format!("Number {}", n),
+                BuildingLocation::Name(s) => format!("Name {}", s),
+                BuildingLocation::Unknown => format!("Unknown")
+            }
+        }
+    }
+
+    let location1 = BuildingLocation::Number(1);
+    let location2 = BuildingLocation::Name("Test Place".to_string());
+    let location3 = BuildingLocation::Unknown;
+    println!("location1 = {}", location1.get_location());
+    println!("location2 = {}", location2.get_location());
+    println!("location3 = {}", location3.get_location());
+
+    enum BuildingLocation2 {
+        Number(i32),
+        Name(String),
+        Unknown
+        }
+    
+    // `impl` is used to implement a function for a type( function oriented, not object oriented), and with any other param to declare the function for the type itself
+    impl BuildingLocation2 {
+        fn get_location2(location: &BuildingLocation2) -> String {
+            match location {
+                BuildingLocation2::Number(n) => format!("Number {}", n),
+                BuildingLocation2::Name(s) => format!("Name {}", s),
+                BuildingLocation2::Unknown => format!("Unknown Location")
+            }
+        }
+    }
+
+    let location1 = BuildingLocation2::Number(2);
+    let location2 = BuildingLocation2::Name("Test Place".to_string());
+    let location3 = BuildingLocation2::Unknown;
+    println!("location1 = {}", BuildingLocation2::get_location2(&location1));
+    println!("location2 = {}", BuildingLocation2::get_location2(&location2));
+    println!("location3 = {}", BuildingLocation2::get_location2(&location3));
+}
+fn code3_4(){
+    struct Person {
+        name: String,
+        age: u8
+    }
+    impl Person {
+        fn new(name: String, age: u8) -> Self {
+            Person{
+                name,
+                age
+            }
+        }
+        fn is_older_than(&self, other: &Person) -> bool {
+            self.age > other.age
+        }
+        fn is_older_than_static(person1: &Person, person2: &Person) -> bool {                                                            
+            person1.age > person2.age
+        }
+
+        fn is_adult(&self) -> bool {
+            self.age >= 18
+        }
+
+        fn introduce(&self) {
+            println!("My name is {} and I am {} years old.", self.name, self.age);
+        }
+    }
+
+    let person1 = Person{                                                                                                        // create an instance of `Person` in struct style
+        name: "John".to_string(),
+        age: 17
+    };
+    let person2 = Person::new("Nancy".to_string(), 20);
+    person1.introduce();
+    person2.introduce();
+    println!("Is {} older than {}? {}", person1.name, person2.name, person1.is_older_than(&person2));
+    println!("Is {} older than {}? {}", person2.name, person1.name, Person::is_older_than_static(&person2, &person1));
+    println!("Is {} an adult? {}", person1.name, person1.is_adult());
+    println!("Is {} an adult? {}", person2.name, person2.is_adult());
+}
+```
+
+### 3.3.5 Note on Codes
+**Warnings 2B Concerned**
+1. When using `match`, make sure to cover all variants of the `enum`. If you miss a variant, the compiler will warn or error.
+   - For example, the `_` catch-all ensures that unmatched variants are handled.
+   - If `_` is omitted, it can lead to errors or unhandled cases.
+2. Using `&str` in `enum` variants requires careful attention to lifetimes. It’s better to use `String` instead of `&str` to avoid lifetime management issues.
+   - Example:
+   ```rust
+   enum BuildingLocation {
+       Name(String),
+       // Name(&str), // `&str` would require a lifetime specifier
+   }
+   ```
+
+**Points 2B Remembered**
+1. `match` allows flexible and powerful pattern matching, including ranges (`..=`), multiple patterns (`|`), and guards (`if` conditions).
+   - Example:
+   ```rust
+   match number {
+       1 | 2 => println!("one or two"),
+       3 ..= 9 => println!("three to nine"),
+       n if n % 2 == 0 => println!("even"),
+       _ => println!("something else"),
+   }
+   ```
+2. `impl` is used to define methods for a type. Methods that depend on the instance of a type use `&self`, whereas functions that depend on the type itself use the type name.
+   - Example of instance method:
+   ```rust
+   fn get_location(&self) -> String { ... }
+   ```
+   - Example of type function:
+   ```rust
+   fn get_location2(location: &BuildingLocation2) -> String { ... }
+   ```
+3. Using `enum` with `match` ensures that all possible cases are covered, making your code more predictable and less error-prone.
+4. `String` is preferred over `&str` in `enum` variants when there’s no need for complex lifetime management.
+
+## 3.4 Usage of `struct`
+### 3.4.1 `struct` Explanation
+1. `struct` is a user-defined data type that groups together multiple values of different types, which are called `fields`.
+2. Values in a `struct` can be accessed using the `.` operator.
+   Example:
+   ```rust
+   struct Point {
+     x: f64,
+     y: f64
+   }
+   ```
+3. Rust is primarily a **function-oriented** language, and the functions you define for a `struct` are called **associated functions**. While Rust doesn't define a `method` as in object-oriented languages, it is common to refer to functions defined on instances of structs as methods.
+4. **Method**: A method is an associated function that is defined for an instance with `&self` as a parameter. You can call it via `instance.method`.
+   Example:
+   ```rust
+   impl Point {
+     fn get_distance(&self, other: Point) -> f64 {
+       // some logic here
+     }
+   }
+   // Calling method
+   point1.get_distance(point2);
+   ```
+5. **Associated Function**: A function that is defined for a `struct` type and doesn't use `&self`. You call it using `Type::func`.
+   Example:
+   ```rust
+   impl Point {
+     fn new(x: f64, y: f64) -> Self {
+       Point { x, y }
+     }
+   }
+   // Calling associated function
+   Point::new(1.0, 2.0);
+   ```
+6. **Associated Variable**: You can define constants or static variables inside an `impl` block for a type, and access them via `Type::var`.
+   Example:
+   ```rust
+   impl Point {
+     const PI: f64 = 3.1415926;
+   }
+   // Accessing associated variable
+   Point::PI;
+   ```
+7. **`self` vs `Self`**:
+   - `self` is a reference to the instance of the type and is used when defining methods.
+   - `Self` refers to the type itself (the struct) and is used when defining associated functions or variables.
+
+### 3.4.2 Demo Codes
+```rust
+struct Person {
+    name: String,
+    age: u8
+}
+
+impl Person {
+    fn new(name: String, age: u8) -> Self {
+        Person {
+            name,
+            age
+        }
+    }
+
+    fn is_older_than(&self, other: &Person) -> bool { // `Method` for instance
+        self.age > other.age
+    }
+
+    fn is_older_than_static(person1: &Person, person2: &Person) -> bool { // `Associated function` for type
+        person1.age > person2.age
+    }
+
+    fn is_adult(&self) -> bool {
+        self.age >= 18
+    }
+
+    fn introduce(&self) {
+        println!("My name is {} and I am {} years old.", self.name, self.age);
+    }
+}
+
+let person1 = Person { // Creating an instance in struct style
+    name: "John".to_string(),
+    age: 17
+};
+let person2 = Person::new("Nancy".to_string(), 20); // Creating an instance in function style
+
+person1.introduce();
+person2.introduce();
+
+println!("Is {} older than {}? {}", person1.name, person2.name, person1.is_older_than(&person2)); // Calling instance method
+println!("Is {} older than {}? {}", person2.name, person1.name, Person::is_older_than_static(&person2, &person1)); // Calling type function
+println!("Is {} an adult? {}", person1.name, person1.is_adult());
+println!("Is {} an adult? {}", person2.name, person2.is_adult());
+```
+
+### 3.4.3 Note on Codes
+**Points 2B Remembered**
+1. **Methods** are defined with `&self` as the first parameter, allowing them to operate on instances of the `struct`. These are called via `instance.method()`.
+   - Example: `person1.introduce()`
+   
+2. **Associated functions** are defined without `&self` and are typically used to operate on the type itself rather than its instances. These are called via `Type::func()`.
+   - Example: `Person::new("Nancy", 20)`
+   
+3. **Associated variables** like constants can also be defined inside the `impl` block and accessed with `Type::var`.
+   - Example: `Point::PI`
+
+4. **`self` vs `Self`**:
+   - `self`: Used in instance methods to refer to the current instance of the type.
+   - `Self`: Used to refer to the type itself in associated functions or variables.
+   
+5. When creating instances of `struct`:
+   - You can use direct assignment (e.g., `let person1 = Person { name: "John".to_string(), age: 17 };`).
+   - Alternatively, you can use associated functions like `Person::new()` to create new instances.
+   
+6. Methods and associated functions can be used to organize logic and behavior around your data types, improving modularity and readability in your Rust programs.
+
+## 3.5 Ownerhip of `struct`
+### 3.5.1 General Knowledges
+1. **Ownership Rules**:
+    - Each value in Rust has an owner.
+    - There can only be one owner at a time.
+    - Values are automatically dropped when the owner goes out of scope.
+
+2. **Value Passing Semantics**:
+    - **Immutable Borrow**: The ownership remains with the original variable, and the receiver gets a reference to the value (`borrow`) rather than a copy.
+    - **Mutable Borrow**: The ownership is still with the original variable, but the receiver can modify the value through the borrow. A mutable borrow must be unique.
+    - **Move**: Ownership is transferred to the receiver variable, and the original variable no longer has access to the value.
+
+3. **Borrowing in Structs**:
+    - **Immutable Borrow**: `&self` (e.g., `self: &self`).
+    - **Mutable Borrow**: `&mut self` (e.g., `self: &mut self`).
+    - **Move**: Ownership is transferred via `self` (e.g., `self: self`).
+    - Example of move in implementation:
+      ```rust
+      impl MyStruct {
+          fn func(self: Self) -> DType {
+              // Function logic here
+          }
+      }
+      ```
+
+4. Once ownership is used in a function (e.g., `MyStruct::func(instance)`), the `self` parameter loses ownership, and the instance can no longer be used.
+
+### 3.5.2 Demo Codes
+```rust
+fn code3_5(){
+    struct Counter {
+        count: u32
+    }
+
+    impl Counter {
+        fn new(init: u32) -> Counter {
+            println!("Create counter at {} by `new`", init);
+            Counter {
+                count: init
+            }
+        }
+
+        fn get_count(&self) -> u32 {                                                                                                     // Immutable borrowing
+            self.count
+        }
+
+        fn add(&mut self, num: u32) {                                                                                                    // Mutable borrowing
+            println!("Add {} to counter at {} by `add`", num, self.count);
+            self.count += num;
+        }
+
+        fn combine(self: Self, other: Self) -> Self {                                                                                    // Move Ownership
+            println!("Combine counter at {} and {} by `combine`", self.count, other.count);
+            Counter {
+                count: self.count + other.count
+            }
+        }
+
+        fn free_counter(self) {                                                                                                          // Move Ownership
+            println!("Free counter at {} by `free_counter`", self.count);
+        }
+    }
+
+    let mut counter1 = Counter::new(0);
+    println!("Counter1: {}", counter1.get_count());
+
+    let counter2 = Counter::new(counter1.get_count());
+    counter1.add(1);
+    println!("Counter1: {}", counter1.get_count());
+    println!("Counter2: {}", counter2.get_count());
+
+    counter1 = counter1.combine(counter2);
+    counter1.free_counter();
+
+    // println!("Counter1: {}", counter1.get_count());                                                                                   // [Error] Ownership moved to `free_counter` and dropped.
+    // println!("Counter2: {}", counter2.get_count());                                                                                   // Ownership moved to `combine` and dropped.
+}
+```
+
+### 3.5.3 Note on Codes
+**Points 2B Remembered**
+1. **Immutable Borrow**: Use `&self` to borrow a reference without transferring ownership.
+   - Example:
+     ```rust
+     fn get_count(&self) -> u32 {
+         self.count
+     }
+     ```
+   - This allows access to the instance without changing its ownership.
+
+2. **Mutable Borrow**: Use `&mut self` to borrow a mutable reference, enabling modifications to the instance.
+   - Example:
+     ```rust
+     fn add(&mut self, num: u32) {
+         self.count += num;
+     }
+     ```
+   - Only one mutable borrow is allowed at a time.
+
+3. **Move Ownership**: Use `self` to transfer ownership of the instance. Once moved, the instance cannot be used again.
+   - Example:
+     ```rust
+     fn free_counter(self) {
+         println!("Free counter at {}", self.count);
+     }
+     ```
+
+4. **Ownership Transfer in Combine**: When combining two instances, ownership of both instances is transferred, and a new instance is returned.
+   - Example:
+     ```rust
+     fn combine(self: Self, other: Self) -> Self {
+         Counter { count: self.count + other.count }
+     }
+     ```
+
+5. **Creating Struct Instances**:
+   - Instances can be created with either a constructor function (`Counter::new`) or directly using the struct definition.
+   - Example:
+     ```rust
+     let counter1 = Counter { count: 0 };
+     let counter2 = Counter::new(10);
+     ```
+
+6. **Dropped Ownership**:
+   - Ownership of an instance is dropped after being passed to a function that takes ownership (e.g., `self` parameter).
+   - Uncommenting lines attempting to use dropped instances will result in compiler errors:
+     ```rust
+     // println!("Counter1: {}", counter1.get_count()); // Error: Ownership moved and dropped
+     ```

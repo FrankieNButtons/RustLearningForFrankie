@@ -65,35 +65,36 @@ def add(a: int, b: int) -> int: ...   # or `pass`
 
 
 
-## 基于maturin的Rust加速Python模块开发流程
-### 总体流程
-#### 新建一个空白项目（也可用cargo，但可清空）
+## Python Module Implemented by Rust with `maturin`
+### Main Steps
+#### Create a New Project
 ```bash
 mkdir rust_module
 cd rust_module
 ```
-#### 创建使用该模块的虚拟环境
+#### Create & Activate a Python Virtual Environment
 ```bash
 python -m venv .venv
 ./.venv/Scripts/activate
 ```
-#### 安装`maturin`模块
+#### Install `maturin` Module
 ```bash
 pip install maturin
 ```
-#### 创建maturin项目
+#### Create a `Maturin` Project
 ```bash
 maturin init
 ```
-init后需要选择顶上的`pyo3`项目，最终得到一个如下结构的Python项目：
+Select `pyo3` project and initialize the project with the following content：
 ```plaintext
 rust_module/
-├── .venv/                # 虚拟环境
+├── .venv/                # Virtual Environment
 ├── Cargo.toml
 ├── src/
 │   └── lib.rs
-├── target/               # 编译输出目录
+├── target/               # Output directory of compiler
 │   └── debug/
-├── pyproject.toml        # 用于Maturin设置Python项目的配置文件
-└── .gitignore            # Git忽略文件
+├── pyproject.toml        # Configuration of Python project over Maturin
+└── .gitignore
 ```
+

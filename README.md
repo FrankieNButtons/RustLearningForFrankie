@@ -14,3 +14,6 @@ Start my learning with [totorial](https://www.bilibili.com/video/BV15y421h7j7/?s
 ## Sep. 19 2024
 ### 20:33
 `Chapter 2` completed.
+## Feb. 12 2025
+### 14:20
+`Chapter 3` completed.

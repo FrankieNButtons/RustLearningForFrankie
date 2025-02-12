@@ -1,6 +1,6 @@
 static MY_STA: i32 = 42;
 static mut MY_MUT_STA:i8 = 42;
-fn code2_2(){
+
 const _SECONDS_PER_HOUR: usize = 3_600;              // Integer can be defined like this.
 const MONTH_PER_YEAR: usize = 12;
 const MONTH_PER_DECADE: usize = 10 * MONTH_PER_YEAR; // Computed out when compiling

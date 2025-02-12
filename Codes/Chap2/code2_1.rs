@@ -1,4 +1,3 @@
-fn code2_1(){
 let num: i32 = 100;             // [Warning]unused var without "_" will cause compiler's warning.
 let _mun: i64 = 54;                 // unused var with "_" won't cause compiler's warning.
 //num = 13;                         // defaultly immutable variable.
@@ -21,4 +20,3 @@ let mut x: u16 = 30;                // Even the immutability of a variable can b
 println!("Mutable `x` is {}", x);
 x = 45;
 println!("Changed `x` is {}", x);
-}

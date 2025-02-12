@@ -776,3 +776,112 @@ fn code3_5(){
      ```rust
      // println!("Counter1: {}", counter1.get_count()); // Error: Ownership moved and dropped
      ```
+## 3.6 Stack/Heap & Copy/Move
+### 3.6.1 Stack/Heap
+1. **Stack**:
+    - A data structure that follows the Last-In-First-Out (LIFO) principle.
+    - Efficient for small data I/O.
+    - Stores data in a contiguous block of memory.
+    - All the data stored on the stack must a  Explicit size.
+    - For example,  The function scope is stored on the stack.
+2. **Heap**:
+    - Less regular than stack, when putting data nto a heap, the memory allocator will return a pointer to the location where the data will be stored on the memory.
+    - Inefficient for data I/O.
+    - Stores data in a non-contiguous block of memory.
+    - The size of the data is not known at compile time.
+3. **Box Pointer**:
+    - A **smart** pointer that points to a value on the `heap`, and is automatically freed when no longer in use,  And can avoid Mememory management problems like `Dangling Pointer` or `Doule Free`.
+    - It is a `reference` to a value on the `heap` that is owned by the variable it is bound to, or concisely,  Provide the `ownership` to the data that are allocated on heap.
+    -  It can keep the uniqueness of the ownership when copy or move a value across variables.
+    - It controls:
+       1.  Ownership Movement
+       2.  Automatic Memory Management
+       3.  Dereferencing
+       4.   Construct Data Sturcture with Recursion
+### 3.6.2 Copy/Move
+1. **Clone** is a deepcopy operation, which means it will copy the data from the original variable to a new one,  and increases the memory occupation.
+2. **Copy** is a marker trait based on `clone`, 
+3. **Move**  Is the  transfer of the ownership of the variable,  Which do, which does not increase the memory occupation.
+4. **trait** is is a mechanism for defining the operations of memory sharing, clone is a `trait` as well.
+5. **marker trait** is a trait without any method, only passes a message to compiler to change he defalt operation of a type. (Similar to `inherit` in object oriented programming)
+6. dtypes stored on stack:
+    - basic dtypes:  `i32`, `f32`, `bool`, `char`, `str`, `()`, `[T; N]`, `&T`, `&mut T`, `*T`, `*const T`, `*mut T`, `Box<T>`
+    - `tuple`/`array`
+    - struct/enum that have no properties that stored on heap(like `String`)
+7. dtypes stored on heap:
+    - Box
+    - String
+    - Rc
+    - Vec
+    - ···
+8. **Copy** strategy is defaultly applied to the `stack-stored dtypes`, but `struct` & `enum` are not.
+9. And if we want to use `Copy` strategy for `struct` & `enum`, we need to implement the `Copy` trait manually like adding `#[derive(Copy, Clone)]` to the struct/enum definition or applied `.clone()` manually.
+### 3.6.3 Demo Code
+```rust
+fn code3_6(){
+    // Box pointer
+    struct Point {
+        x: i32,
+        y: i32
+    }
+
+    let boxed_point = Box::new(Point{x: 1, y: 2});
+    println!("Point is at ({}, {}", boxed_point.x, boxed_point.y);                                                                       // Though Box is a pointer, it will automatically dereference when accessing its fields.
+
+    let mut boxed_num = Box::new(5);
+    println!("Boxed number is {}", *boxed_num);                                                                                          // Dereference the pointer manually with `*` like C/C++ to access the value.
+    // boxed_num += 1;                                                                                                                   // [Error] cannot assign to `*boxed_num` directly because it is a `&mut` reference
+    *boxed_num += 1;                                                                                                                     // Dereference the pointer manually with `*` to change the value.
+    println!("Boxed number is {}", *boxed_num);
+    
+
+    // Copy/Move
+    let x = vec![1, 2, 3, 4];
+    let y = x.clone();                                                                                                         // Copy the value of a `heap-stored` variable with `.clone()`
+    println!("x is {:?}", x);
+    println!("y is {:?}", y);
+
+    struct Book1 {
+        page: i32,
+        price: f64
+    }
+
+    let str = "Hello, world!".to_string();
+    let str_copied = str.clone();
+    println!("string is {:?}", str);
+    println!("string copied is {:?}", str_copied);
+
+    let book = Book1{page: 100,price: 10.5};
+    // println!("book is {:?}", book);                                                                                                   // [Error] `Book1` doesn't implement the `Debug` trait
+    // let book_copied = book.clone();                                                                                                   // [Error] No method named `clone` found for struct `Book` in the current scope
+
+    #[derive(Clone, Debug)]                                                                                                              // Add `#[derive(Clone, Debug)]` to `Book2` to make it `Clone` and `Debug`
+    struct Book2 {
+        page: i32,                                                                                                                       // [Warning] Struct printed with `{:?}` as `Debug`` is not considered as Fields Usage
+        price: f64
+    }
+
+    let book = Book2{page: 100,price: 10.5};
+    println!("book is {:?}", book);
+    let book_copied = book.clone();
+    println!("book copied is {:?}", book_copied);
+}
+```
+### 3.6.4 Notes on Codes
+**Warnings 2B Concerned**
+1. **Box Pointer Dereferencing**:
+    - Boxed values are automatically dereferenced when accessing their fields, so you don't need to manually dereference unless needed (e.g., when performing mutable operations on a Boxed value).
+
+2. **Cloning and Copying**:
+    - `vec.clone()` performs a deep copy, creating a new vector on the heap.
+    - Ensure that you implement `Clone` and `Debug` for custom types if you want to use methods like `clone()` and print them with `{:?}`.
+
+**Points 2B Remembered**
+1. **Box Pointer**:
+   - A `Box` pointer manages ownership of heap-allocated data and automatically cleans up when it goes out of scope.
+   - You can dereference a `Box` pointer using `*`, but remember, `Box<T>` only implements mutable references, so be cautious when trying to modify it directly.
+
+2. **Copy vs. Clone**:
+   - `Copy` applies to simple types that can be duplicated easily, like integers or booleans. For heap-allocated types, such as vectors, you must use `.clone()` to make a deep copy.
+   - `Clone` is a trait that creates deep copies, while `Copy` provides a shallow copy.
+   - Remember to derive `Copy` and `Clone` for structs/enums if needed, as they are not implemented by default.

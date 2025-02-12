@@ -1,19 +1,19 @@
 // `Copy` on baic type
 let c1 = 1;
-let _c2 = c1;                                                                          // `Copy` on basic type
+let _c2 = c1;                                                                     // `Copy` on basic type
 println!("_c1={}", c1);
 // `Ownership borrowed`` on complex type
 let s1 = String::from("hello");
-let _s2 = s1;                                                                          // `Move` the ownership of `s1` to `s2`
+let _s2 = s1;                                                                  // `Move` the ownership of `s1` to `s2`
 // println!("_s1={}", s1);                                                             // [Error]The ownership of value in `s1` has been moved to `s2`, which will cause BorrowOfMovedValueError
 println!("_s2={}", _s2);
-let s2 = _s2.clone();                                                                  //  `Clone` on complex type
+let s2 = _s2.clone();                                                          //  `Clone` on complex type
 println!("s2={}", s2);
 println!("_s2={}", _s2);
 
 fn get_length(s: String)-> usize{      
     println!("Length of {}, is {}", s, s.len());
-    s.len()                                                                            // No `;` to return and claim the dtype on annotation
+    s.len()                                                                               // No `;` to return and claim the dtype on annotation
 }
 
 let s3 = String::from("hello3");
@@ -49,7 +49,7 @@ fn print_string_static_2(s: String) -> String{                                  
 }
 
 let s6 = String::from("hello6");
-let s6_returned = print_string_static_2(s6.clone());                                   // Whatever the ownership of the variable is, it can be cloned and put in as other languages, while the original one preserved, though it hurt the performance sometimes.
+let s6_returned = print_string_static_2(s6.clone());                           // Whatever the ownership of the variable is, it can be cloned and put in as other languages, while the original one preserved, though it hurt the performance sometimes.
 println!("s6_returned={}", s6_returned);
 println!("s6={}", s6);
 
